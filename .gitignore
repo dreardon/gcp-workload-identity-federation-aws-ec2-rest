@@ -1,0 +1,7 @@
+.DS_Store
+venvs
+client-config.json
+.env
+policy-document.json
+role.json
+example-lambda-function/
