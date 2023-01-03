@@ -6,11 +6,11 @@ This is an AWS EC2 case of a multi project set of examples for configuring Googl
 This is not an officially supported Google product
 
 ## Table of Contents
-1. [Prerequisites](https://github.com/dreardon/workload-identity-aws-rest#prerequisites)
-1. [Google Service Account and Identity Pool](https://github.com/dreardon/workload-identity-aws-rest#create-a-google-service-account-and-identity-pool)
-1. [AWS IAM Role Creation](https://github.com/dreardon/workload-identity-aws-rest#aws-role-creation)
-1. [Connect Identity Pool to AWS](https://github.com/dreardon/workload-identity-aws-rest#connect-identity-pool-to-aws-create-provider)
-1. [Validate Workload Identity Federation Setup](https://github.com/dreardon/workload-identity-aws-rest#validate-workload-identity-federation-pool-setup)
+1. [Prerequisites](https://github.com/dreardon/gcp-workload-identity-federation-aws-ec2-rest#prerequisites)
+1. [Google Service Account and Identity Pool](https://github.com/dreardon/gcp-workload-identity-federation-aws-ec2-rest#create-a-google-service-account-and-identity-pool)
+1. [AWS IAM Role Creation](https://github.com/dreardon/gcp-workload-identity-federation-aws-ec2-rest#aws-role-creation)
+1. [Connect Identity Pool to AWS](https://github.com/dreardon/gcp-workload-identity-federation-aws-ec2-rest#connect-identity-pool-to-aws-create-provider)
+1. [Validate Workload Identity Federation Setup](https://github.com/dreardon/gcp-workload-identity-federation-aws-ec2-rest#validate-workload-identity-federation-pool-setup)
 
 ## Prerequisites
 <ul type="square"><li>An existing Google Project, you'll need to reference PROJECT_ID later in this setup</li>
@@ -48,7 +48,7 @@ gcloud iam workload-identity-pools create $WORKLOAD_IDENTITY_POOL \
 ## AWS Role Creation
 
 ```
-export AWS_ROLE_NAME=GCP_Vision_API
+export AWS_ROLE_NAME=[AWS Role Name] #New Role for Future EC2
 
 cat > policy-document.json << ENDOFFILE
 {
@@ -71,16 +71,12 @@ aws iam create-role --role-name $AWS_ROLE_NAME  \
 
 export ROLE_ARN=$(aws iam get-role --role-name $AWS_ROLE_NAME --query 'Role.[RoleName, Arn]' --output text | awk '{print $2}')
 ```
-<img src="images/aws_permissions.png" alt="AWS Role Permission Tab"><br>
-<img src="images/aws_trust.png" alt="AWS Role Trust Tab"><br>
+![AWS Role Permission Tab](images/aws_permissions.png)
+![AWS Role Trust Tab](images/aws_trust.png)
 
 ## Connect Identity Pool to AWS, Create Provider
 
 ```
-export PROJECT_ID=[Google Project ID]
-export PROJECT_NUMBER=[Google Project Number]
-export SERVICE_ACCOUNT=[Google Service Account Name]
-export WORKLOAD_IDENTITY_POOL=[Workload Identity Pool]
 export WORKLOAD_PROVIDER=[Workload Identity Provider] #New Workload Provider Name
 export AWS_ACCOUNT_ID=[AWS Account ID]
 
