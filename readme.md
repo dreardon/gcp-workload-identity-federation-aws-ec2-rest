@@ -32,7 +32,7 @@ export WORKLOAD_IDENTITY_POOL=[Workload Identity Pool] #New Workload Identity Po
 gcloud config set project $PROJECT_ID
 
 gcloud iam service-accounts create $SERVICE_ACCOUNT \
-    --display-name="AWS Workload Identity SA"
+    --display-name="AWS EC2 Workload Identity SA"
 
 # Defines what this service account can do once assumed by AWS
 gcloud projects add-iam-policy-binding $PROJECT_ID \
@@ -41,8 +41,8 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
 
 gcloud iam workload-identity-pools create $WORKLOAD_IDENTITY_POOL \
     --location="global" \
---description="Workload Identity Pool for AWS" \
---display-name="AWS Workload Pool"
+--description="Workload Identity Pool for AWS EC2" \
+--display-name="AWS EC2 Workload Pool"
 ```
 
 ## AWS Role Creation
@@ -69,6 +69,9 @@ aws iam create-role --role-name $AWS_ROLE_NAME  \
     --assume-role-policy-document file://policy-document.json  \
     --description "Role used to send images to GCP Vision API"
 
+aws iam create-instance-profile --instance-profile-name $AWS_ROLE_NAME 
+aws iam add-role-to-instance-profile --instance-profile-name $AWS_ROLE_NAME  --role-name $AWS_ROLE_NAME 
+
 export ROLE_ARN=$(aws iam get-role --role-name $AWS_ROLE_NAME --query 'Role.[RoleName, Arn]' --output text | awk '{print $2}')
 ```
 ![AWS Role Permission Tab](images/aws_permissions.png)
@@ -89,13 +92,13 @@ gcloud iam workload-identity-pools providers create-aws $WORKLOAD_PROVIDER  \
   --location="global"  \
   --workload-identity-pool=$WORKLOAD_IDENTITY_POOL \
   --account-id="$AWS_ACCOUNT_ID" \
-  --attribute-mapping="google.subject=assertion.arn"
-  --attribute-mapping="attribute.aws_role=assertion.arn.contains('assumed-role') ? assertion.arn.extract('{account_arn}assumed-role/') + 'assumed-role/' + assertion.arn.extract('assumed-role/{role_name}/') : assertion.arn"
+  --attribute-mapping="google.subject=assertion.arn","attribute.aws_role=assertion.arn.contains('assumed-role') ? assertion.arn.extract('{account_arn}assumed-role/') + 'assumed-role/' + assertion.arn.extract('assumed-role/{role_name}/') : assertion.arn"
 ```
 
 ## Validate Workload Identity Federation Pool Setup
+Add the the $AWS_ROLE_NAME to the EC2 instance as an instance profile and run the following.
 ```
-pip install -r requirements.txt
-python workload-identity.py
+pip3 install -r requirements.txt
+python3 workload_identity.py
 ```
 ![Vision API Validation](images/validate.png)
